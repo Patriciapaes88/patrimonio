@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patrimônio ETI</title>
+  <link rel="stylesheet" href="/src/patri.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <button id="toggle-tema" onclick="document.body.classList.toggle('modo-escuro')">🌙</button>
+
+  <div class="cabecalho">
+    <h2>📋 Cadastro de Patrimônio</h2>
+   
+    <div class="seletor-tempo">
+      <button id="btn-filtrar">🔍 Mostrar Registros</button>
+
+      <label for="ano-filtro">Ano:</label>
+      <select id="ano-filtro"></select>
+
+      <label for="filtro-setor">Setor:</label>
+      <select id="filtro-setor">
+        <option value="__todos__">Todos (Agrupados por setor)</option>
+        <option value="Cozinha">Cozinha</option>
+        <option value="Secretaria">Secretaria</option>
+        <option value="Biblioteca">Biblioteca</option>
+        <option value="Sala de Aula">Sala de Aula</option>
+        <option value="Sala de Informatica">Sala de Informatica</option>
+      </select>
+
+      <button id="copiar-ano">Copiar Ano anterior</button>
+      <button id="exportar-xlsx">📤 Exportar para Excel (.xlsx)</button>
+    </div>
+  </div>
+
+  <div class="formulario">
+    <form id="form-patrimonio">
+      <label>Nº Patrimônio:</label>
+      <input type="text" name="patrimonio" class="input-pequeno" />
+
+      <label>Patrimônio:</label>
+      <input type="text" name="nome" required />
+
+      <label>Está na Unidade?</label>
+      <select name="presente">
+        <option>Sim</option>
+        <option>Não</option>
+      </select>
+
+      <label>Quantidade:</label>
+      <input type="number" name="quantidade" class="input-pequeno" required />
+
+      <label>Estado:</label>
+      <select name="estado">
+        <option>Ótimo</option>
+        <option>Bom</option>
+        <option>Ruim</option>
+        <option>Péssimo</option>
+      </select>
+
+      <label for="ano-formulario">Ano:</label>
+      <select id="ano-formulario" name="ano"></select>
+
+      <label for="setor-formulario">Setor:</label>
+      <select id="setor-formulario" name="local" required>
+        <option value="Cozinha">Cozinha</option>
+        <option value="Secretaria">Secretaria</option>
+        <option value="Biblioteca">Biblioteca</option>
+        <option value="Sala de Aula">Sala de Aula</option>
+        <option value="Sala de Informatica">Sala de Informatica</option>
+      </select>
+
+      <button type="submit">Salvar</button>
+    </form>
+
+    <div id="tabela-patrimonios">
+      <h3>📑 Patrimônios Cadastrados</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Nº</th>
+            <th>Nome</th>
+            <th>Unidade</th>
+            <th>Qtd</th>
+            <th>Estado</th>
+            <th>Local</th>
+            <th>Ano</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="corpo-tabela">
+          <!-- Registros vão aparecer aqui -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script type="module">
+  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada } from '/src/patri.js';
+
+    document.addEventListener("DOMContentLoaded", () => {
+      preencherMesAno();
+      ativarFormulario();
+      // ✅ Atualiza a tabela ao mudar os filtros
+  
+    document.getElementById("ano-filtro").addEventListener("change", exibirTabelaFiltrada);
+    document.getElementById("filtro-setor").addEventListener("change", exibirTabelaFiltrada);
+    document.getElementById("copiar-ano").addEventListener("click", copiarAnoAnterior);
+    
+
+    });
+  </script>
+</body>
+</html>

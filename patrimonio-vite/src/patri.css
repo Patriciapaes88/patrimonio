@@ -1,0 +1,418 @@
+/* 🌐 Reset e base */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #FAD4E4;
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+}
+
+/* 🧭 Cabeçalho */
+.cabecalho {
+  background-color: #A97FB8;
+  color: white;
+  padding: 1em;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.seletor-tempo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.seletor-tempo select,
+.seletor-tempo button {
+  padding: 6px;
+  font-size: 1rem;
+  min-width: 100px;
+  border-radius: 6px;
+}
+
+/* 📝 Formulário */
+.formulario {
+  padding: 2em;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: auto;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#form-patrimonio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: flex-end;
+}
+
+#form-patrimonio label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input[name="quantidade"],
+input[name="ano"] {
+  width: 45px;
+  text-align: center;
+}
+
+input[name="patrimonio"],
+select[name="presente"] {
+  width: 100px;
+  text-align: center;
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.3em;
+  padding: 0.5em;
+  font-size: 1rem;
+  border-radius: 6px;
+}
+
+/* 📊 Tabela 
+#tabela-patrimonios {
+  margin-top: 2em;
+  padding: 1em;
+  overflow-x: auto;
+}
+*/
+#tabela-patrimonios {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* suaviza no iPhone */
+}
+
+#tabela-patrimonios table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  background-color: #fff;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+}
+
+#tabela-patrimonios th,
+#tabela-patrimonios td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+#tabela-patrimonios th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* 🧩 Botões de ação */
+.btn-editar,
+.btn-excluir {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0.4em;
+  border-radius: 4px;
+}
+
+.btn-editar {
+  color: #333;
+  background-color: #FFD966;
+}
+
+.btn-editar:hover {
+  background-color: #e6c84f;
+  transform: scale(1.1);
+}
+
+.btn-excluir {
+  background-color: #EB85B3;
+  color: white;
+}
+
+.btn-excluir:hover {
+  transform: scale(1.2);
+}
+
+/* 📤 Botão de exportação */
+#exportar-xlsx {
+  background-color: #6A5ACD;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-family: 'Segoe UI', 'Verdana', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#exportar-xlsx:hover {
+  background-color: #5a4cb0;
+  transform: scale(1.03);
+}
+
+#exportar-xlsx:active {
+  transform: scale(0.98);
+}
+
+/* 🎯 Campos específicos */
+#ano-formulario {
+  width: auto;
+  min-width: 100px;
+  padding: 6px;
+  font-size: 1rem;
+  background-color: white;
+  color: black;
+}
+
+/* 🎯 Campos específicos */
+#ano-formulario {
+  width: auto;
+  min-width: 100px;
+  padding: 6px;
+  font-size: 1rem;
+  background-color: white;
+  color: black;
+}
+input[name="patrimonio"],
+input[name="nome"],
+select[name="estado"],
+select[name="presente"] {
+  min-width: 120px;
+  flex: 1;
+}
+/* 🔧 Campos compactos */
+input[name="quantidade"] {
+  width: auto;
+  min-width: 100px;
+  max-width: 140px;
+  text-align: center;
+  padding: 6px;
+  font-size: 1rem;
+}
+
+select[name="presente"] {
+  width: auto;
+  min-width: 80px;
+  max-width: 100px;
+  text-align: center;
+  padding: 6px;
+  font-size: 1rem;
+}
+
+/* 🎯 Campos com largura reduzida */
+select[name="estado"],
+select[name="ano"],
+select[name="local"],
+#ano-formulario,
+#ano-filtro,
+#filtro-setor,
+#setor-formulario {
+  width: auto;
+  min-width: 100px;
+  max-width: 140px;
+  text-align: center;
+}
+input[name="quantidade"] {
+  width: 60px;
+  min-width: 60px;
+  text-align: center;
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+
+
+
+
+
+
+/* 🧠 Acessibilidade */
+button:focus,
+input:focus,
+select:focus {
+  outline: 2px solid #6A5ACD;
+  outline-offset: 2px;
+}
+
+/* 📱 Responsividade */
+@media (max-width: 768px) {
+  /*#form-patrimonio {
+    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 1em;
+  }*/
+  #form-patrimonio {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+#form-patrimonio label,
+#form-patrimonio input,
+#form-patrimonio select,
+#form-patrimonio button {
+  width: 100%;
+}
+
+
+  .seletor-tempo {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  input,
+  select,
+  button {
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  #tabela-patrimonios table
+  #tabela-patrimonios th,
+  #tabela-patrimonios td {
+    font-size: 0.85em;
+    padding: 6px;
+  }
+
+  .formulario {
+    padding: 1em;
+  }
+
+  label {
+    margin-top: 1em;
+  }
+}
+/* Agrupamento visual de "Está na Unidade?" e "Quantidade" */
+select[name="presente"],
+input[name="quantidade"] {
+  display: inline-block;
+  width: 48%;
+  min-width: 100px;
+  margin-right: 2%;
+  vertical-align: bottom;
+}
+select[name="presente"] {
+  margin-bottom: 0;
+}
+
+input[name="quantidade"] {
+  margin-top: 0;
+}
+
+
+
+@media (max-width: 462px) {
+  /*#form-patrimonio {
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
+  }*/
+#form-patrimonio {
+  grid-template-columns: 1fr;
+}
+
+  .seletor-tempo {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .formulario {
+    padding: 0.8em;
+  }
+
+  input,
+  select,
+  button {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.6em;
+    border-radius: 6px;
+  }
+
+  label {
+    font-size: 0.9rem;
+    margin-top: 0.6em;
+  }
+
+  #tabela-patrimonios table {
+    font-size: 0.9em;
+  }
+
+  .btn-excluir {
+    font-size: 1em;
+  }
+}
+
+/*botão mostrar registros plano b esta invisivel*/
+#btn-filtrar {
+  display: none;
+}
+
+/* 🌙 Modo Escuro */
+body.modo-escuro {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+body.modo-escuro .cabecalho {
+  background-color: #3a2f4f;
+  color: #ffffff;
+}
+
+body.modo-escuro .formulario {
+  background-color: #2c2c2c;
+  border: 1px solid #444;
+}
+
+body.modo-escuro input,
+body.modo-escuro select,
+body.modo-escuro button {
+  background-color: #333;
+  color: #f0f0f0;
+  border: 1px solid #555;
+}
+
+body.modo-escuro #tabela-patrimonios table {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+body.modo-escuro #tabela-patrimonios th {
+  background-color: #3a3a3a;
+}
+
+#toggle-tema {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  transition: transform 0.2s ease;
+}
+
+
+
+
+#toggle-tema:hover {
+  transform: scale(1.2);
+}
+
+
