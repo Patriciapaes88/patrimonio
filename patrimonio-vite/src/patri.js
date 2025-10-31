@@ -50,7 +50,7 @@ export function ativarFormulario() {
  const formData = new FormData();
 formData.append("dados", JSON.stringify(dados));
 
-fetch("https://script.google.com/macros/s/AKfycbxg64QCcPClz8yETwLftd7g1I-QVkn_N55ib1iEfdPnviO6RXKQl4KOFJdNhU42Fdai/exec", {
+fetch("https://script.google.com/macros/s/AKfycbwSpuBcfv2Ypug6awaGCU1W9fuNv_Brlq8LVlahlm8BITYKpD22lYRrHX0GLBzCuCp6/exec", {
   method: "POST",
   body: formData
 })
