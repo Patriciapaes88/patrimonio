@@ -45,7 +45,7 @@ export function ativarFormulario() {
     listaPatrimonios.push(dados);
     salvarNoLocalStorage();
     exibirTabelaFiltrada();
-    
+
  // Envia para Supabase
    salvarNoSupabase(dados);
 
@@ -246,6 +246,13 @@ async function salvarNoSupabase(dados) {
     body: JSON.stringify([dados])
   });
 
-  const resultado = await res.json();
+  const texto = await res.text();
+try {
+  const resultado = JSON.parse(texto);
+  console.log("✅ Enviado para Supabase:", resultado);
+} catch (e) {
+  console.warn("⚠️ Resposta não era JSON:", texto);
+}
+
   console.log("✅ Enviado para Supabase:", resultado);
 }
