@@ -127,25 +127,27 @@ function adicionarLinhaTabela(dados, corpoTabela) {
     btns.innerHTML = '<button class="btn-salvar" title="Clique para salvar alteração 💾">💾</button>';
 
     const btnSalvar = btns.querySelector(".btn-salvar");
-    btnSalvar.addEventListener("click", () => {
+    btnSalvar.addEventListener("click", async () => {
       campos.forEach((campo, i) => {
         const novoValor = celulas[i].querySelector("input").value.trim();
         dados[campo] = novoValor;
       });
 
       salvarNoLocalStorage();
+      await editarNoSupabase(dados.id, dados);
       exibirTabelaFiltrada();
     });
   });
 
   // Excluir
-  linha.querySelector(".btn-excluir").addEventListener("click", () => {
+  linha.querySelector(".btn-excluir").addEventListener("click",async () => {
     const confirmar = confirm("Tem certeza que deseja excluir este patrimônio?");
     if (confirmar) {
       const index = listaPatrimonios.indexOf(dados);
       if (index > -1) {
         listaPatrimonios.splice(index, 1);
         salvarNoLocalStorage();
+        await excluirDoSupabase(dados.id);
         exibirTabelaFiltrada();
       }
     }
@@ -209,26 +211,46 @@ const filtrados = listaPatrimonios.filter(p => {
 
 // Copia dados do ano anterior
 export function copiarAnoAnterior() {
-  const anoAtual = parseInt(document.getElementById("ano-filtro").value);
-  const anoAnterior = String(anoAtual - 1);
+  const anoAtual = document.getElementById("ano-filtro").value;
+  const setorSelecionado = document.getElementById("filtro-setor").value;
+  const anoAnterior = String(parseInt(anoAtual) - 1);
 
-  const anteriores = listaPatrimonios.filter(p => p.ano === anoAnterior);
+  // Filtra patrimônios do ano anterior e do setor selecionado (ou todos)
+  const anteriores = listaPatrimonios.filter(p =>
+    p.ano === anoAnterior &&
+    (setorSelecionado === "Todos" || p.setor === setorSelecionado)
+  );
 
   if (anteriores.length === 0) {
-    alert(`Nenhum patrimônio encontrado para o ano ${anoAnterior}.`);
+    alert(`Nenhum patrimônio encontrado para o ano ${anoAnterior} no setor ${setorSelecionado}.`);
     return;
   }
 
-  const copiados = anteriores.map(p => ({
+  // Evita duplicar patrimônios já existentes no ano atual
+  const existentes = listaPatrimonios.filter(p => p.ano === anoAtual);
+
+  const copiados = anteriores.filter(p => {
+    return !existentes.some(e =>
+      e.nome === p.nome &&
+      e.setor === p.setor &&
+      e.numero === p.numero
+    );
+  }).map(p => ({
     ...p,
-    ano: String(anoAtual)
+    ano: anoAtual
   }));
+
+  if (copiados.length === 0) {
+    alert(`Todos os patrimônios de ${anoAnterior} já existem em ${anoAtual}.`);
+    return;
+  }
 
   listaPatrimonios.push(...copiados);
   salvarNoLocalStorage();
   exibirTabelaFiltrada();
-  alert(`Foram copiados ${copiados.length} patrimônios de ${anoAnterior}.`);
+  alert(`✅ Foram copiados ${copiados.length} patrimônios de ${anoAnterior} para ${anoAtual} no setor ${setorSelecionado}.`);
 }
+
 const SUPABASE_URL = "https://dklkrryzawlyvtvedlec.supabase.co"; // substitua pela sua
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbGtycnl6YXdseXZ0dmVkbGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NjcxNDgsImV4cCI6MjA3NzQ0MzE0OH0.rOIaksjWxgBud1NKa5AYCVenVqD6_lC0IvlSO_0fPtw"; // substitua pela sua
 
@@ -259,8 +281,8 @@ async function salvarNoSupabase(dados) {
     alert("✅ Patrimônio salvo com sucesso!");
     buscarPatrimonios(); // recarrega a tabela após salvar
   } catch (e) {
-    console.error("⚠️  Patrimônio salvo localmente. Será sincronizado quando a conexão voltar. :", e);
-    alert(" Patrimônio salvo localmente. Será sincronizado quando a conexão voltar. .");
+    console.error("⚠️  Patrimônio salvo. :", e);
+    alert(" Patrimônio salvo.");
   }
 }
 
@@ -284,6 +306,15 @@ window.addEventListener("online", sincronizarComSupabase);
 
 
 export async function buscarPatrimonios() {
+    const salvosLocal = JSON.parse(localStorage.getItem("patrimonios") || "[]");
+
+  if (salvosLocal.length > 0) {
+    listaPatrimonios.length = 0;
+    listaPatrimonios.push(...salvosLocal);
+    console.log("Dados carregados do localStorage");
+    exibirTabelaFiltrada();
+    return;
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
     headers: {
       apikey: SUPABASE_KEY,
@@ -295,5 +326,28 @@ export async function buscarPatrimonios() {
 
   listaPatrimonios.length = 0;       // limpa a lista local
   listaPatrimonios.push(...dados);   // preenche com dados do Supabase
+   salvarNoLocalStorage();
   exibirTabelaFiltrada();            // atualiza a tabela na tela
+}
+
+async function excluirDoSupabase(id) {
+  await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
+    method: "DELETE",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+}
+
+async function editarNoSupabase(id, novosDados) {
+  await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
+    method: "PATCH",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(novosDados)
+  });
 }
