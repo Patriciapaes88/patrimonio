@@ -36,6 +36,7 @@ export function ativarFormulario() {
    
 
     const dados = {
+       id: crypto.randomUUID(), 
       numero: form.patrimonio.value.trim(),
       nome: form.nome.value.trim(),
       presente: form.presente.value.trim(),
@@ -301,6 +302,9 @@ async function salvarNoSupabase(dados) {
   console.log("🌐 Sincronizando ...");
 
   salvos.forEach(dados => {
+    if (!dados.id) {
+    dados.id = crypto.randomUUID(); // ← garante que tenha ID antes de salvar
+  }
     salvarNoSupabase(dados);
   });
 
