@@ -41,21 +41,24 @@ export function ativarFormulario() {
       local: setorFormulario.value
     };
 
-    
+    // Sempre salva localmente
     listaPatrimonios.push(dados);
     salvarNoLocalStorage();
     exibirTabelaFiltrada();
 
- // Envia para Supabase
-   salvarNoSupabase(dados);
-
+    // ✅ Só envia para Supabase se tiver internet
+    if (navigator.onLine) {
+      salvarNoSupabase(dados);
+    } else {
+      console.warn("⛔ Sem internet, salvando só localmente");
+    }
 
     form.reset();
     form.patrimonio.focus();
     setorFormulario.value = dados.local;
   });
-
 }
+
 
 
 
