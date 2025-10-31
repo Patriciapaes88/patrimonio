@@ -74,7 +74,8 @@ export function exibirTabelaFiltrada() {
 
   corpoTabela.innerHTML = "";
 
-  const filtrados = listaPatrimonios.filter(p => p.ano === anoSelecionado);
+  const filtrados = listaPatrimonios.filter(p => String(p.ano) === String(anoSelecionado));
+
 
   if (setorSelecionado === "__todos__") {
     const setoresUnicos = [...new Set(filtrados.map(p => p.local))];
@@ -239,18 +240,18 @@ async function salvarNoSupabase(dados) {
     const texto = await res.text();
 
     if (!res.ok) {
-      console.error("❌ Erro ao salvar no Supabase:", res.status, texto);
+      console.error("❌ Erro ao salvar :", res.status, texto);
       alert("Erro ao salvar no Supabase: " + texto);
       return;
     }
 
     const resultado = JSON.parse(texto);
-    console.log("✅ Enviado para Supabase:", resultado);
+    console.log("✅ Enviado :", resultado);
     alert("✅ Patrimônio salvo com sucesso!");
     buscarPatrimonios(); // recarrega a tabela após salvar
   } catch (e) {
-    console.error("⚠️ Falha na conexão com Supabase:", e);
-    alert("Falha na conexão com Supabase.");
+    console.error("⚠️ Falha na conexão :", e);
+    alert("Falha na conexão .");
   }
 }
 
@@ -260,14 +261,14 @@ function sincronizarComSupabase() {
   const salvos = JSON.parse(localStorage.getItem("patrimonios") || "[]");
   if (salvos.length === 0) return;
 
-  console.log("🌐 Sincronizando com Supabase...");
+  console.log("🌐 Sincronizando ...");
 
   salvos.forEach(dados => {
     salvarNoSupabase(dados);
   });
 
   localStorage.removeItem("patrimonios");
-  alert("✅ Dados locais foram sincronizados com o Supabase.");
+  alert("✅ Dados locais foram sincronizados.");
 }
 
 window.addEventListener("online", sincronizarComSupabase);
