@@ -47,21 +47,21 @@ export function ativarFormulario() {
     exibirTabelaFiltrada();
 
     // Envia para planilha online via Google Apps Script
-   fetch("https://script.google.com/macros/s/AKfycbxg64QCcPClz8yETwLftd7g1I-QVkn_N55ib1iEfdPnviO6RXKQl4KOFJdNhU42Fdai/exec", {
-  method: "POST",
-  body: JSON.stringify(dados),
-  headers: {
-    "Content-Type": "application/json"
-  }
-})
+ const formData = new FormData();
+formData.append("dados", JSON.stringify(dados));
 
-    .then(res => res.text())
-    .then(msg => {
-      console.log("✅ Enviado para planilha:", msg);
-    })
-    .catch(err => {
-      console.error("❌ Erro ao enviar para planilha:", err);
-    });
+fetch("https://script.google.com/macros/s/AKfycbxg64QCcPClz8yETwLftd7g1I-QVkn_N55ib1iEfdPnviO6RXKQl4KOFJdNhU42Fdai/exec", {
+  method: "POST",
+  body: formData
+})
+.then(res => res.text())
+.then(msg => {
+  console.log("✅ Enviado para planilha:", msg);
+})
+.catch(err => {
+  console.error("❌ Erro ao enviar para planilha:", err);
+});
+
 
     form.reset();
     form.patrimonio.focus();
