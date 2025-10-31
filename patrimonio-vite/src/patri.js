@@ -373,9 +373,11 @@ async function excluirDoSupabase(id) {
     });
 
     if (!res.ok) {
-       console.log("📄 Resposta da exclusão:", texto);
-      const texto = await res.text();
-      console.error("❌ Erro ao excluir:", texto);
+  const texto = await res.text();
+  console.log("📄 Resposta da exclusão:", texto);
+  console.error("❌ Erro ao excluir:", texto);
+
+
     } else {
       console.log(`✅ Patrimônio ${id} excluído `);
     }
