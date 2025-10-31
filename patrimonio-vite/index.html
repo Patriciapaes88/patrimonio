@@ -97,11 +97,13 @@
   </div>
 
   <script type="module">
-  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada } from '/src/patri.js';
+  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada, buscarPatrimonios } from '/src/patri.js';
 
     document.addEventListener("DOMContentLoaded", () => {
       preencherMesAno();
       ativarFormulario();
+      buscarPatrimonios();
+      sincronizarComSupabase();
       // ✅ Atualiza a tabela ao mudar os filtros
   
     document.getElementById("ano-filtro").addEventListener("change", exibirTabelaFiltrada);

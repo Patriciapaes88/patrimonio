@@ -41,7 +41,7 @@ export function ativarFormulario() {
       local: setorFormulario.value
     };
 
-    // Salva localmente
+    
     listaPatrimonios.push(dados);
     salvarNoLocalStorage();
     exibirTabelaFiltrada();
@@ -55,29 +55,9 @@ export function ativarFormulario() {
     setorFormulario.value = dados.local;
   });
 
-  carregarDoLocalStorage();
 }
 
-// Salva no localStorage
-function salvarNoLocalStorage() {
-  localStorage.setItem("patrimonios", JSON.stringify(listaPatrimonios));
-}
 
-// Carrega do localStorage
-function carregarDoLocalStorage() {
-  const salvos = localStorage.getItem("patrimonios");
-  if (salvos) {
-    try {
-      const dados = JSON.parse(salvos);
-      if (Array.isArray(dados)) {
-        listaPatrimonios.push(...dados);
-        exibirTabelaFiltrada();
-      }
-    } catch (e) {
-      console.error("Erro ao carregar dados salvos:", e);
-    }
-  }
-}
 
 // Exibe a tabela filtrada
 export function exibirTabelaFiltrada() {
@@ -255,4 +235,38 @@ try {
 }
 
   console.log("✅ Enviado para Supabase:", resultado);
+}
+
+function sincronizarComSupabase() {
+  if (!navigator.onLine) return;
+
+  const salvos = JSON.parse(localStorage.getItem("patrimonios") || "[]");
+  if (salvos.length === 0) return;
+
+  console.log("🌐 Sincronizando com Supabase...");
+
+  salvos.forEach(dados => {
+    salvarNoSupabase(dados);
+  });
+
+  localStorage.removeItem("patrimonios");
+  alert("✅ Dados locais foram sincronizados com o Supabase.");
+}
+
+window.addEventListener("online", sincronizarComSupabase);
+
+
+export async function buscarPatrimonios() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  const dados = await res.json();
+  console.log(" Patrimônios carregados:", dados);
+
+  listaPatrimonios.length = 0;       // limpa a lista local
+  listaPatrimonios.push(...dados);   // preenche com dados do Supabase
+  exibirTabelaFiltrada();            // atualiza a tabela na tela
 }
