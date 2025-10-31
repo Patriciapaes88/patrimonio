@@ -137,6 +137,7 @@ function adicionarLinhaTabela(dados, corpoTabela) {
          salvarNoLocalStorage();
     await editarNoSupabase(dados.id, dados);
     await buscarPatrimonios(); // ← garante que a tabela seja atualizada
+    exibirTabelaFiltrada();
   });
 });
   // Excluir
@@ -149,6 +150,7 @@ function adicionarLinhaTabela(dados, corpoTabela) {
         salvarNoLocalStorage();
         await excluirDoSupabase(dados.id);
        await buscarPatrimonios();
+       exibirTabelaFiltrada();
       }
     }
   });
@@ -262,35 +264,44 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 
 //salvaNoSupabase
-async function salvarNoSupabase(dados) {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`
-      },
-      body: JSON.stringify([dados])
-    });
+try {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(dados)
+  });
 
-    const texto = await res.text();
+  const texto = await res.text();
 
-    if (!res.ok) {
-      console.error("❌ Erro ao salvar :", res.status, texto);
-      alert("Erro ao salvar : " + texto);
-      return;
-    }
-
-    const resultado = JSON.parse(texto);
-    console.log("✅ Enviado :", resultado);
-    alert("✅ Patrimônio salvo com sucesso!");
-    buscarPatrimonios(); // recarrega a tabela após salvar
-  } catch (e) {
-    console.error("⚠️  Patrimônio salvo. :", e);
-    alert(" Patrimônio salvo.");
+  if (!res.ok) {
+    console.error("❌ Erro ao salvar:", res.status, texto);
+    alert("Erro ao salvar: " + texto);
+    return;
   }
+
+  let resultado = null;
+  if (texto) {
+    try {
+      resultado = JSON.parse(texto);
+      console.log("✅ Enviado:", resultado);
+    } catch (e) {
+      console.warn("⚠️ Resposta não era JSON:", texto);
+    }
+  } else {
+    console.log("✅ Patrimônio salvo com sucesso (sem corpo JSON)");
+  }
+
+  alert("✅ Patrimônio salvo com sucesso!");
+  buscarPatrimonios(); // recarrega a tabela após salvar
+} catch (e) {
+  console.error("⚠️ Falha ao salvar patrimônio:", e);
+  alert("⚠️ Falha ao salvar patrimônio.");
 }
+
 
  export function sincronizarComSupabase() {
   if (!navigator.onLine) return;
