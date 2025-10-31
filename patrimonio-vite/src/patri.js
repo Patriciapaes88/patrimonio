@@ -314,45 +314,43 @@ async function salvarNoSupabase(dados) {
 
 window.addEventListener("online", sincronizarComSupabase);
 
+// Busca patrimonios do Supabase
 export async function buscarPatrimonios() {
-  const salvosLocal = JSON.parse(localStorage.getItem("patrimonios") || "[]");
+  if (navigator.onLine) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      });
 
-  if (salvosLocal.length > 0) {
-    listaPatrimonios.length = 0;
-    listaPatrimonios.push(...salvosLocal);
-    console.log("📦 Dados carregados do localStorage");
-    exibirTabelaFiltrada();
-    return;
-  }
-
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
+      if (!res.ok) {
+        throw new Error(`Erro ao buscar do Supabase: ${res.status}`);
       }
-    });
 
-    if (!res.ok) {
-      throw new Error(`Erro ao buscar do Supabase: ${res.status}`);
+      const dados = await res.json();
+      console.log("🌐 Patrimônios carregados do Supabase:", dados);
+
+      listaPatrimonios.length = 0;
+      listaPatrimonios.push(...dados);
+      salvarNoLocalStorage(); // atualiza os dados locais com os dados online
+      exibirTabelaFiltrada();
+      return;
+    } catch (e) {
+      console.warn("⚠️ Falha ao buscar do Supabase. Usando dados locais.");
     }
-
-    const dados = await res.json();
-    console.log("🌐 Patrimônios carregados :", dados);
-
-    listaPatrimonios.length = 0;
-    listaPatrimonios.push(...dados);
-    salvarNoLocalStorage();
-    exibirTabelaFiltrada();
-  } catch (e) {
-    console.warn("⚠️ Falha ao buscar.");
-    listaPatrimonios.length = 0;
-    listaPatrimonios.push(...salvosLocal);
-    exibirTabelaFiltrada();
   }
+
+  // Se estiver offline ou a busca falhar, usa os dados locais
+  const salvosLocal = JSON.parse(localStorage.getItem("patrimonios") || "[]");
+  listaPatrimonios.length = 0;
+  listaPatrimonios.push(...salvosLocal);
+  console.log(" Dados carregados do localStorage");
+  exibirTabelaFiltrada();
 }
 
-
+// Excluir do Supabase
 async function excluirDoSupabase(id) {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
@@ -374,6 +372,7 @@ async function excluirDoSupabase(id) {
   }
 }
 
+// Editar no Supabase
 async function editarNoSupabase(id, novosDados) {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
