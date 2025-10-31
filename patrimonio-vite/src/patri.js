@@ -87,7 +87,9 @@ export function exibirTabelaFiltrada() {
       grupo.forEach(dados => adicionarLinhaTabela(dados, corpoTabela));
     });
   } else {
-    const grupoFiltrado = filtrados.filter(p => p.local === setorSelecionado);
+
+    const grupoFiltrado = filtrados.filter(p => p.local.toLowerCase() === setorSelecionado.toLowerCase());
+
     grupoFiltrado.forEach(dados => adicionarLinhaTabela(dados, corpoTabela));
   }
 }
@@ -157,7 +159,8 @@ document.getElementById("exportar-xlsx").addEventListener("click", () => {
   const setorSelecionado = document.getElementById("filtro-setor").value;
 const filtrados = listaPatrimonios.filter(p => {
   const mesmoAno = String(p.ano) === String(anoSelecionado);
-  const mesmoSetor = setorSelecionado === "__todos__" || p.local === setorSelecionado;
+ const mesmoSetor = setorSelecionado === "__todos__" || p.local.toLowerCase() === setorSelecionado.toLowerCase();
+
   return mesmoAno && mesmoSetor;
 });
 
