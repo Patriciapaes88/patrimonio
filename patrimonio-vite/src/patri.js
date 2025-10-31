@@ -264,7 +264,7 @@ async function salvarNoSupabase(dados) {
   }
 }
 
-function sincronizarComSupabase() {
+ export function sincronizarComSupabase() {
   if (!navigator.onLine) return;
 
   const salvos = JSON.parse(localStorage.getItem("patrimonios") || "[]");
