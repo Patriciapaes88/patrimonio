@@ -215,10 +215,10 @@ export function copiarAnoAnterior() {
   const setorSelecionado = document.getElementById("filtro-setor").value;
   const anoAnterior = String(parseInt(anoAtual) - 1);
 
-  // Filtra patrimônios do ano anterior e do setor selecionado (ou todos)
+  // Corrigido: usa p.local em vez de p.setor
   const anteriores = listaPatrimonios.filter(p =>
-    p.ano === anoAnterior &&
-    (setorSelecionado === "Todos" || p.setor === setorSelecionado)
+    String(p.ano) === anoAnterior &&
+    (setorSelecionado === "__todos__" || p.local.toLowerCase() === setorSelecionado.toLowerCase())
   );
 
   if (anteriores.length === 0) {
@@ -226,18 +226,18 @@ export function copiarAnoAnterior() {
     return;
   }
 
-  // Evita duplicar patrimônios já existentes no ano atual
-  const existentes = listaPatrimonios.filter(p => p.ano === anoAtual);
+  const existentes = listaPatrimonios.filter(p => String(p.ano) === anoAtual);
 
   const copiados = anteriores.filter(p => {
     return !existentes.some(e =>
       e.nome === p.nome &&
-      e.setor === p.setor &&
+      e.local === p.local &&
       e.numero === p.numero
     );
   }).map(p => ({
     ...p,
-    ano: anoAtual
+    ano: anoAtual,
+    id: crypto.randomUUID() // garante que cada item copiado tenha um ID único
   }));
 
   if (copiados.length === 0) {
@@ -247,10 +247,16 @@ export function copiarAnoAnterior() {
 
   listaPatrimonios.push(...copiados);
   salvarNoLocalStorage();
+
+  // Se estiver online, envia os copiados para o Supabase
+  if (navigator.onLine) {
+    copiados.forEach(dados => salvarNoSupabase(dados));
+  }
+
   exibirTabelaFiltrada();
   alert(`✅ Foram copiados ${copiados.length} patrimônios de ${anoAnterior} para ${anoAtual} no setor ${setorSelecionado}.`);
 }
-
+// Supabase
 const SUPABASE_URL = "https://dklkrryzawlyvtvedlec.supabase.co"; // substitua pela sua
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbGtycnl6YXdseXZ0dmVkbGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NjcxNDgsImV4cCI6MjA3NzQ0MzE0OH0.rOIaksjWxgBud1NKa5AYCVenVqD6_lC0IvlSO_0fPtw"; // substitua pela sua
 
@@ -304,50 +310,85 @@ async function salvarNoSupabase(dados) {
 
 window.addEventListener("online", sincronizarComSupabase);
 
-
 export async function buscarPatrimonios() {
-    const salvosLocal = JSON.parse(localStorage.getItem("patrimonios") || "[]");
+  const salvosLocal = JSON.parse(localStorage.getItem("patrimonios") || "[]");
 
   if (salvosLocal.length > 0) {
     listaPatrimonios.length = 0;
     listaPatrimonios.push(...salvosLocal);
-    console.log("Dados carregados do localStorage");
+    console.log("📦 Dados carregados do localStorage");
     exibirTabelaFiltrada();
     return;
   }
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`
-    }
-  });
-  const dados = await res.json();
-  console.log(" Patrimônios carregados:", dados);
 
-  listaPatrimonios.length = 0;       // limpa a lista local
-  listaPatrimonios.push(...dados);   // preenche com dados do Supabase
-   salvarNoLocalStorage();
-  exibirTabelaFiltrada();            // atualiza a tabela na tela
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?select=*`, {
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Erro ao buscar do Supabase: ${res.status}`);
+    }
+
+    const dados = await res.json();
+    console.log("🌐 Patrimônios carregados :", dados);
+
+    listaPatrimonios.length = 0;
+    listaPatrimonios.push(...dados);
+    salvarNoLocalStorage();
+    exibirTabelaFiltrada();
+  } catch (e) {
+    console.warn("⚠️ Falha ao buscar.");
+    listaPatrimonios.length = 0;
+    listaPatrimonios.push(...salvosLocal);
+    exibirTabelaFiltrada();
+  }
 }
 
+
 async function excluirDoSupabase(id) {
-  await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
-    method: "DELETE",
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
+      method: "DELETE",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      }
+    });
+
+    if (!res.ok) {
+      const texto = await res.text();
+      console.error("❌ Erro ao excluir:", texto);
+    } else {
+      console.log(`✅ Patrimônio ${id} excluído `);
     }
-  });
+  } catch (e) {
+    console.error("⚠️ Falha ao excluir :", e);
+  }
 }
 
 async function editarNoSupabase(id, novosDados) {
-  await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
-    method: "PATCH",
-    headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(novosDados)
-  });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(novosDados)
+    });
+
+    if (!res.ok) {
+      const texto = await res.text();
+      console.error("❌ Erro ao editar:", texto);
+    } else {
+      console.log(`✅ Patrimônio ${id} atualizado `);
+    }
+  } catch (e) {
+    console.error("⚠️ Falha ao editar :", e);
+  }
 }
