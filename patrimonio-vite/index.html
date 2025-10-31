@@ -14,7 +14,7 @@
     <h2>📋 Cadastro de Patrimônio</h2>
    
     <div class="seletor-tempo">
-      <button id="btn-filtrar">🔍 Mostrar Registros</button>
+      <button id="btn-filtrar">🔍 Atulizar Tabela</button>
 
       <label for="ano-filtro">Ano:</label>
       <select id="ano-filtro"></select>
@@ -97,7 +97,7 @@
   </div>
 
   <script type="module">
-  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada, buscarPatrimonios } from '/src/patri.js';
+  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada, buscarPatrimonios, sincronizarComSupabase } from '/src/patri.js';
 
     document.addEventListener("DOMContentLoaded", () => {
       preencherMesAno();

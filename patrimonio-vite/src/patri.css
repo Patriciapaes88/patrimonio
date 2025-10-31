@@ -359,9 +359,15 @@ input[name="quantidade"] {
   }
 }
 
-/*botão mostrar registros plano b esta invisivel*/
-#btn-filtrar {
-  display: none;
+/*botão mostrar registros plano b */#btn-filtrar {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 5px;
+  background-color: #e6e0f8;
+ border-color: #c2b6e3;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
 /* 🌙 Modo Escuro */

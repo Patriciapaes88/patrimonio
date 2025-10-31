@@ -154,7 +154,13 @@ function adicionarLinhaTabela(dados, corpoTabela) {
 document.getElementById("exportar-xlsx").addEventListener("click", () => {
   const anoSelecionado = document.getElementById("ano-filtro").value;
 
-  const filtrados = listaPatrimonios.filter(p => p.ano === anoSelecionado);
+  const setorSelecionado = document.getElementById("filtro-setor").value;
+const filtrados = listaPatrimonios.filter(p => {
+  const mesmoAno = String(p.ano) === String(anoSelecionado);
+  const mesmoSetor = setorSelecionado === "__todos__" || p.local === setorSelecionado;
+  return mesmoAno && mesmoSetor;
+});
+
   if (filtrados.length === 0) {
     alert("Não há registros para exportar neste período.");
     return;
@@ -241,7 +247,7 @@ async function salvarNoSupabase(dados) {
 
     if (!res.ok) {
       console.error("❌ Erro ao salvar :", res.status, texto);
-      alert("Erro ao salvar no Supabase: " + texto);
+      alert("Erro ao salvar : " + texto);
       return;
     }
 
@@ -250,8 +256,8 @@ async function salvarNoSupabase(dados) {
     alert("✅ Patrimônio salvo com sucesso!");
     buscarPatrimonios(); // recarrega a tabela após salvar
   } catch (e) {
-    console.error("⚠️ Falha na conexão :", e);
-    alert("Falha na conexão .");
+    console.error("⚠️  Patrimônio salvo localmente. Será sincronizado quando a conexão voltar. :", e);
+    alert(" Patrimônio salvo localmente. Será sincronizado quando a conexão voltar. .");
   }
 }
 
