@@ -1,6 +1,9 @@
 // Lista principal
 const listaPatrimonios = [];
-
+// Salva no armazenamento local
+function salvarNoLocalStorage() {
+  localStorage.setItem("patrimonios", JSON.stringify(listaPatrimonios));
+}
 // Preenche os anos nos selects
 export function preencherMesAno() {
   const selectAnoFiltro = document.getElementById("ano-filtro");
@@ -30,6 +33,7 @@ export function ativarFormulario() {
 
   form.addEventListener("submit", function (e) {
     e.preventDefault();
+   
 
     const dados = {
       numero: form.patrimonio.value.trim(),
@@ -218,26 +222,36 @@ export function copiarAnoAnterior() {
 const SUPABASE_URL = "https://dklkrryzawlyvtvedlec.supabase.co"; // substitua pela sua
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbGtycnl6YXdseXZ0dmVkbGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NjcxNDgsImV4cCI6MjA3NzQ0MzE0OH0.rOIaksjWxgBud1NKa5AYCVenVqD6_lC0IvlSO_0fPtw"; // substitua pela sua
 
+
+//salvaNoSupabase
 async function salvarNoSupabase(dados) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`
-    },
-    body: JSON.stringify([dados])
-  });
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify([dados])
+    });
 
-  const texto = await res.text();
-try {
-  const resultado = JSON.parse(texto);
-  console.log("✅ Enviado para Supabase:", resultado);
-} catch (e) {
-  console.warn("⚠️ Resposta não era JSON:", texto);
-}
+    const texto = await res.text();
 
-  console.log("✅ Enviado para Supabase:", resultado);
+    if (!res.ok) {
+      console.error("❌ Erro ao salvar no Supabase:", res.status, texto);
+      alert("Erro ao salvar no Supabase: " + texto);
+      return;
+    }
+
+    const resultado = JSON.parse(texto);
+    console.log("✅ Enviado para Supabase:", resultado);
+    alert("✅ Patrimônio salvo com sucesso!");
+    buscarPatrimonios(); // recarrega a tabela após salvar
+  } catch (e) {
+    console.error("⚠️ Falha na conexão com Supabase:", e);
+    alert("Falha na conexão com Supabase.");
+  }
 }
 
 function sincronizarComSupabase() {
