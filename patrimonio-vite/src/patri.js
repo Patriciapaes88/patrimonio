@@ -45,22 +45,9 @@ export function ativarFormulario() {
     listaPatrimonios.push(dados);
     salvarNoLocalStorage();
     exibirTabelaFiltrada();
-
-    // Envia para planilha online via Google Apps Script
- const formData = new FormData();
-formData.append("dados", JSON.stringify(dados));
-
-fetch("https://script.google.com/macros/s/AKfycbzgzzkawA6gShMxxagSgVUqZhDCdTz4r4ILFGIGq0TVOEpOryLT6NK2khHt-5oJ939R/exec", {
-  method: "POST",
-  body: formData
-})
-.then(res => res.text())
-.then(msg => {
-  console.log("✅ Enviado para planilha:", msg);
-})
-.catch(err => {
-  console.error("❌ Erro ao enviar para planilha:", err);
-});
+    
+ // Envia para Supabase
+   salvarNoSupabase(dados);
 
 
     form.reset();
@@ -244,4 +231,21 @@ export function copiarAnoAnterior() {
   salvarNoLocalStorage();
   exibirTabelaFiltrada();
   alert(`Foram copiados ${copiados.length} patrimônios de ${anoAnterior}.`);
+}
+const SUPABASE_URL = "https://dklkrryzawlyvtvedlec.supabase.co"; // substitua pela sua
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbGtycnl6YXdseXZ0dmVkbGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NjcxNDgsImV4cCI6MjA3NzQ0MzE0OH0.rOIaksjWxgBud1NKa5AYCVenVqD6_lC0IvlSO_0fPtw"; // substitua pela sua
+
+async function salvarNoSupabase(dados) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    },
+    body: JSON.stringify([dados])
+  });
+
+  const resultado = await res.json();
+  console.log("✅ Enviado para Supabase:", resultado);
 }
