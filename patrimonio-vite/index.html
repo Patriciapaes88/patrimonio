@@ -96,22 +96,41 @@
     </div>
   </div>
 
-  <script type="module">
-  import { preencherMesAno, ativarFormulario, copiarAnoAnterior, exibirTabelaFiltrada, buscarPatrimonios } from '/src/patri.js';
+ <script type="module">
+  import {
+    listarPatrimonios,
+    preencherMesAno,
+    ativarFormulario,
+    copiarAnoAnterior,
+    exibirTabelaFiltrada,
+    buscarPatrimonios,
+    salvarNoSupabase,
+    editarNoSupabase,
+    excluirDoSupabase,
+    sincronizarComSupabase
+  } from '/src/patri.js';
 
-    document.addEventListener("DOMContentLoaded", () => {
-      preencherMesAno();
-      ativarFormulario();
-      buscarPatrimonios();
-      
-      // ✅ Atualiza a tabela ao mudar os filtros
-  
+  document.addEventListener("DOMContentLoaded", () => {
+    preencherMesAno();
+    ativarFormulario();
+    buscarPatrimonios();
+
+    // ✅ Atualiza a tabela ao mudar os filtros
     document.getElementById("ano-filtro").addEventListener("change", exibirTabelaFiltrada);
     document.getElementById("filtro-setor").addEventListener("change", exibirTabelaFiltrada);
     document.getElementById("copiar-ano").addEventListener("click", copiarAnoAnterior);
-    
 
-    });
-  </script>
+    // ✅ Sincroniza dados locais ao ficar online
+    window.addEventListener("online", sincronizarComSupabase);
+  });
+
+  // Aqui você pode adicionar eventos para salvar, editar e excluir patrimônios
+  // Exemplo:
+  // document.getElementById("botao-salvar").addEventListener("click", () => {
+  //   const dados = coletarDadosDoFormulario();
+  //   salvarNoSupabase(dados);
+  // });
+</script>
+
 </body>
 </html>

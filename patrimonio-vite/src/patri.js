@@ -134,28 +134,36 @@ function adicionarLinhaTabela(dados, corpoTabela) {
         dados[campo] = novoValor;
       });
 
-         salvarNoLocalStorage();
-    await editarNoSupabase(dados.id, dados);
-    await buscarPatrimonios(); // ← garante que a tabela seja atualizada
-    exibirTabelaFiltrada();
+      salvarNoLocalStorage();
+
+      if (navigator.onLine) {
+        await editarNoSupabase(dados.id, dados);
+      }
+
+      await buscarPatrimonios();
+      exibirTabelaFiltrada();
+    });
   });
-});
+
   // Excluir
-  linha.querySelector(".btn-excluir").addEventListener("click",async () => {
+  linha.querySelector(".btn-excluir").addEventListener("click", async () => {
     const confirmar = confirm("Tem certeza que deseja excluir este patrimônio?");
     if (confirmar) {
       const index = listaPatrimonios.indexOf(dados);
       if (index > -1) {
         listaPatrimonios.splice(index, 1);
         salvarNoLocalStorage();
-        await excluirDoSupabase(dados.id);
-       await buscarPatrimonios();
-       exibirTabelaFiltrada();
+
+        if (navigator.onLine) {
+          await excluirDoSupabase(dados.id);
+        }
+
+        await buscarPatrimonios();
+        exibirTabelaFiltrada();
       }
     }
   });
 }
-
 // Exporta para Excel
 document.getElementById("exportar-xlsx").addEventListener("click", () => {
   const anoSelecionado = document.getElementById("ano-filtro").value;
@@ -363,33 +371,35 @@ export async function buscarPatrimonios() {
 }
 
 // Excluir do Supabase
-async function excluirDoSupabase(id) {
+export async function excluirDoSupabase(id) {
   try {
-      console.log("🗑️ Excluindo patrimônio com ID:", id);
+    console.log("🗑️ Excluindo patrimônio com ID:", id);
     const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
       method: "DELETE",
       headers: {
         apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        Prefer: "return=representation"
       }
     });
 
+    const texto = await res.text();
+    console.log("📄 Resposta da exclusão:", texto);
+
     if (!res.ok) {
-  const texto = await res.text();
-  console.log("📄 Resposta da exclusão:", texto);
-  console.error("❌ Erro ao excluir:", texto);
-
-
+      console.error("❌ Erro ao excluir:", texto);
     } else {
-      console.log(`✅ Patrimônio ${id} excluído `);
+      console.log(`✅ Patrimônio ${id} excluído`);
+      buscarPatrimonios(); // atualiza a tabela após exclusão
     }
   } catch (e) {
     console.error("⚠️ Falha ao excluir :", e);
   }
 }
 
+
 // Editar no Supabase
- async function editarNoSupabase(id, novosDados) {
+ export async function editarNoSupabase(id, novosDados) {
   try {
     console.log("✏️ Editando patrimônio com ID:", id);
     const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios?id=eq.${id}`, {
@@ -397,7 +407,8 @@ async function excluirDoSupabase(id) {
       headers: {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Prefer: "return=representation"
       },
       body: JSON.stringify(novosDados)
     });
@@ -409,8 +420,11 @@ async function excluirDoSupabase(id) {
       console.error("❌ Erro ao editar:", res.status, texto);
     } else {
       console.log(`✅ Patrimônio ${id} atualizado com sucesso`);
+      buscarPatrimonios(); // atualiza a tabela após edição
     }
   } catch (e) {
     console.error("⚠️ Falha ao editar:", e);
   }
 }
+
+window.listaPatrimonios = listaPatrimonios;
