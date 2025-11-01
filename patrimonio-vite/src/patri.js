@@ -276,7 +276,7 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
-//salvaNoSupabase
+// Função para salvar no Supabase
 export async function salvarNoSupabase(dados) {
   try {
     // Garante que o dado tenha um ID único
@@ -296,13 +296,15 @@ export async function salvarNoSupabase(dados) {
 
     console.log("✅ Patrimônio salvo:", data);
     alert("✅ Patrimônio salvo com sucesso!");
+
     buscarPatrimonios(); // atualiza a tabela
   } catch (e) {
     console.error("⚠️ Falha ao salvar patrimônio:", e);
     alert("⚠️ Falha ao salvar patrimônio.");
   }
 }
-// Sincroniza dados locais com Supabase quando voltar online
+
+
  export function sincronizarComSupabase() {
   if (!navigator.onLine) return;
 
