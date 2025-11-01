@@ -267,8 +267,8 @@ export function copiarAnoAnterior() {
   alert(`✅ Foram copiados ${copiados.length} patrimônios de ${anoAnterior} para ${anoAtual} no setor ${setorSelecionado}.`);
 }
 // Supabase
-const SUPABASE_URL = "https://dklkrryzawlyvtvedlec.supabase.co"; // substitua pela sua
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrbGtycnl6YXdseXZ0dmVkbGVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NjcxNDgsImV4cCI6MjA3NzQ0MzE0OH0.rOIaksjWxgBud1NKa5AYCVenVqD6_lC0IvlSO_0fPtw"; // substitua pela sua
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
 
 
 //salvaNoSupabase
