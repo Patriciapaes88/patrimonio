@@ -266,53 +266,43 @@ export function copiarAnoAnterior() {
   exibirTabelaFiltrada();
   alert(`✅ Foram copiados ${copiados.length} patrimônios de ${anoAnterior} para ${anoAtual} no setor ${setorSelecionado}.`);
 }
+
 // Supabase
+import { createClient } from "@supabase/supabase-js";
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_KEY;
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 
 //salvaNoSupabase
 export async function salvarNoSupabase(dados) {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/patrimonios`, {
-      method: "POST",
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(dados)
-    });
+    // Garante que o dado tenha um ID único
+    if (!dados.id) {
+      dados.id = crypto.randomUUID();
+    }
 
-    const texto = await res.text();
+    const { data, error } = await supabase
+      .from("patrimonios")
+      .insert([dados]);
 
-    if (!res.ok) {
-      console.error("❌ Erro ao salvar:", res.status, texto);
-      alert("Erro ao salvar: " + texto);
+    if (error) {
+      console.error("❌ Erro ao salvar:", error.message);
+      alert("Erro ao salvar: " + error.message);
       return;
     }
 
-    let resultado = null;
-    if (texto) {
-      try {
-        resultado = JSON.parse(texto);
-        console.log("✅ Enviado:", resultado);
-      } catch (e) {
-        console.warn("⚠️ Resposta não era JSON:", texto);
-      }
-    } else {
-      console.log("✅ Patrimônio salvo com sucesso (sem corpo JSON)");
-    }
-
+    console.log("✅ Patrimônio salvo:", data);
     alert("✅ Patrimônio salvo com sucesso!");
-    buscarPatrimonios(); // recarrega a tabela após salvar
+    buscarPatrimonios(); // atualiza a tabela
   } catch (e) {
     console.error("⚠️ Falha ao salvar patrimônio:", e);
     alert("⚠️ Falha ao salvar patrimônio.");
   }
 }
-
-
+// Sincroniza dados locais com Supabase quando voltar online
  export function sincronizarComSupabase() {
   if (!navigator.onLine) return;
 
